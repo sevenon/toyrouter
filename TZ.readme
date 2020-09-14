@@ -1,0 +1,7 @@
+timezone setting for busybox (uclibc)
+busybox expects /etc/TZ in an exact format
+treat /etc/TZ as a binary file, don't use a text editor to create
+busybox reads this file and could keep it in memory, reboot after changing /etc/TZ
+
+create /etc/TZ with the echo command, for example:
+echo "AEST-10AEDT,M10.1.0,M4.1.0/3" >/etc/TZ

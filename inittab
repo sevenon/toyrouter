@@ -1,0 +1,35 @@
+
+# Start a shell on the default console and another shell on a serial port
+::askfirst:-/bin/sh
+com0::askfirst:-/bin/sh
+
+# Set hostname
+::sysinit:/bin/hostname -F /etc/hostname
+
+# set system time assuming hardware clock is in utc (for iptables -m time --kerneltz)
+::sysinit:/bin/hwclock -s -u
+
+# Configure routing rules
+::sysinit:/etc/iptables-rules.sh
+
+# Start syslog
+::respawn:/bin/syslogd -n -b 99
+
+# Start ifplugd on both wan and lan
+::sysinit:/bin/rm -f /var/run/*.pid
+::respawn:/bin/ifplugd -n -p -i wan0 -r /etc/wan-updown-event.sh
+::respawn:/bin/ifplugd -n -i lan0 -r /etc/lan-updown-event.sh
+
+# Start dhcp client on wan, dhcp server on lan
+::respawn:/bin/udhcpc -f -i wan0 -p /var/run/udhcpc.pid -s /etc/wan-dhcp-event.sh -O 121 -C
+::respawn:/bin/udhcpd -f -S /etc/udhcpd.conf
+
+# Start inetd - telnet, ftp and web servers
+::respawn:/bin/inetd -f /etc/inetd.conf
+
+# Send updates to ddns account
+# ::respawn:/etc/ddns-updater.sh
+
+# Keep time using a public time server
+::respawn:/bin/ntpd -n -p time.google.com
+

@@ -1,0 +1,4 @@
+#!/bin/sh
+GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT net.ifnames=0 biosdevname=0 init=/usr/local/toyrouter/ubuntu-pre-init.sh"
+GRUB_DISTRIBUTOR="Toyrouter"
+
