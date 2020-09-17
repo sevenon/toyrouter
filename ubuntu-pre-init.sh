@@ -12,15 +12,11 @@ ip link set eth1 down
 ip link set eth0 name wan0
 ip link set eth1 name lan0
 
-# /dev/ttyS1 will be used as the system console
-ln -s /dev/ttyS1 /dev/com0
-stty -F /dev/com0 115200
-
 # overlay Toyrouter over Ubuntu
 inst=/usr/local/toyrouter
 work=/var/toyrouter-overlay-workdir
 
-rm -fr $work/*
+rm -fr $work
 mkdir -p $work/bin
 mkdir -p $work/sbin
 mkdir -p $work/etc

@@ -1,7 +1,9 @@
 
 # start login shells
-::askfirst:-/bin/sh
-com0::askfirst:-/bin/sh
+tty1::askfirst:-/bin/sh
+tty2::respawn:/bin/getty 115200 tty2
+tty3::respawn:/bin/getty 115200 tty3
+ttyS0::respawn:/bin/getty 115200 ttyS0
 
 # set hostname
 ::sysinit:/bin/hostname -F /etc/hostname
