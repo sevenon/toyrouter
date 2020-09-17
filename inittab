@@ -1,35 +1,43 @@
 
-# Start a shell on the default console and another shell on a serial port
+# start login shells
 ::askfirst:-/bin/sh
 com0::askfirst:-/bin/sh
 
-# Set hostname
+# set hostname
 ::sysinit:/bin/hostname -F /etc/hostname
 
 # set system time assuming hardware clock is in utc (for iptables -m time --kerneltz)
 ::sysinit:/bin/hwclock -s -u
 
-# Configure routing rules
+# start syslog
+::sysinit:/bin/syslogd -b 99
+
+# enable forwarding between network interfaces
+::sysinit:/bin/echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# configure routing rules
 ::sysinit:/etc/iptables-rules.sh
 
-# Start syslog
-::respawn:/bin/syslogd -n -b 99
+# configure lan ip address and start dhcp server on lan
+::sysinit:/etc/lan-ip-config.sh
+::sysinit:/bin/udhcpd -S /etc/udhcpd.conf
 
-# Start ifplugd on both wan and lan
+# clean up any left over process identifiers
 ::sysinit:/bin/rm -f /var/run/*.pid
-::respawn:/bin/ifplugd -n -p -i wan0 -r /etc/wan-updown-event.sh
-::respawn:/bin/ifplugd -n -i lan0 -r /etc/lan-updown-event.sh
 
-# Start dhcp client on wan, dhcp server on lan
-::respawn:/bin/udhcpc -f -i wan0 -p /var/run/udhcpc.pid -s /etc/wan-dhcp-event.sh -O 121 -C
-::respawn:/bin/udhcpd -f -S /etc/udhcpd.conf
+# enable network interfaces, and keep them up
+::sysinit:/bin/ifplugd -p -i wan0 -I -r /etc/wan-updown-event.sh
+::sysinit:/bin/ifplugd -p -i lan0 -I -r /etc/lan-updown-event.sh
 
-# Start inetd - telnet, ftp and web servers
-::respawn:/bin/inetd -f /etc/inetd.conf
+# start dhcp client on wan
+::respawn:/bin/udhcpc -f -i wan0 -p /var/run/udhcpc.pid -s /etc/wan-dhcp-event.sh > /dev/null 2>&1
 
-# Send updates to ddns account
+# start inetd - telnet, ftp and web servers
+::sysinit:/bin/inetd /etc/inetd.conf
+
+# update external ip with ddns service
 # ::respawn:/etc/ddns-updater.sh
 
-# Keep time using a public time server
-::respawn:/bin/ntpd -n -p time.google.com
+# keep time using a public time server
+::once:/bin/ntpd -p time.google.com
 

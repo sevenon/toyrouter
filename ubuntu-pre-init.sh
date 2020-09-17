@@ -4,7 +4,7 @@
 mount -o remount, rw /
 
 # load usb ethernet kernel module
-modprobe asix
+# modprobe asix
 
 # rename network interfaces to lan0 and wan0
 ip link set eth0 down
